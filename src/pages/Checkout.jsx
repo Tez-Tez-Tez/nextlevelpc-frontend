@@ -364,7 +364,7 @@ const Checkout = ({ cart, onSuccess, onError }) => {
         {/* Vista de éxito */}
         {paymentSuccess && (
           <div className="payment-success-view">
-            <div className="success-icon">✓</div>
+            <div className="success-icon">OK</div>
             <h3>¡Pago Completado!</h3>
             <p>Tu pedido ha sido procesado exitosamente.</p>
             {ordenCreada?.numero && (

@@ -65,7 +65,7 @@ body {
     display: flex;
     align-items: start;
     gap: 1rem;
-    justify-content: flex-start; /* 🔹 asegura que el logo quede pegado al borde */
+    justify-content: flex-start; /* asegura que el logo quede pegado al borde */
 }
 .header-right,
 

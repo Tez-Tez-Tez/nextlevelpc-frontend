@@ -106,7 +106,7 @@ const Factura = () => {
         <div className="factura-container">
             <div className="factura-actions no-print">
                 <button className="btn-print" onClick={handlePrint}>
-                    🖨️ Imprimir Factura
+                    Imprimir Factura
                 </button>
                 <button className="btn-back" onClick={() => navigate('/')}>
                     ← Volver

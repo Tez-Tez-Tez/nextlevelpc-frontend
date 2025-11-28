@@ -5,7 +5,7 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
-console.log('🔧 API_BASE_URL configurada:', API_BASE_URL);
+console.log('API_BASE_URL configurada:', API_BASE_URL);
 
 /**
  * Hace un fetch con la URL base correcta
@@ -17,7 +17,7 @@ export const apiFetch = async (endpoint, options = {}) => {
     const url = `${API_BASE_URL}${endpoint}`;
     
     // Log para debugging
-    console.log(`📡 API Request: ${options.method || 'GET'} ${url}`);
+    console.log(`API Request: ${options.method || 'GET'} ${url}`);
     
     try {
         const response = await fetch(url, {
@@ -27,16 +27,16 @@ export const apiFetch = async (endpoint, options = {}) => {
         
         // Si la respuesta no es ok, lanzar error
         if (!response.ok) {
-            console.error(`❌ API Error: ${response.status} ${response.statusText}`);
+            console.error(`API Error: ${response.status} ${response.statusText}`);
             throw new Error(`HTTP ${response.status}`);
         }
         
         // Intentar parsear como JSON
         const data = await response.json();
-        console.log(`✅ API Response:`, data);
+        console.log(`API Response:`, data);
         return data;
     } catch (error) {
-        console.error(`❌ API Error: ${error.message}`, error);
+        console.error(`API Error: ${error.message}`, error);
         throw error;
     }
 };
