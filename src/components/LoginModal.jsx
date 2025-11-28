@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuthModal } from '../contexts/AuthContext';
 import { useAuth } from '../utils/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { apiFetch } from '../utils/apiClient';
 import '../styles/login.css';
 
 const IconX = () => (
@@ -24,7 +25,6 @@ const LoginModal = ({ onClose }) => {
 
     const { login } = useAuth();
     const navigate = useNavigate();
-    const API_BASE = '';
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -32,25 +32,21 @@ const LoginModal = ({ onClose }) => {
         setLoading(true);
 
         try {
-            const res = await fetch(`${API_BASE}/api/usuarios/login`, {
+            const data = await apiFetch(`/api/usuarios/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
                 body: JSON.stringify({
                     correo: loginData.correo,
                     hash_password: loginData.password
                 }),
             });
 
-            if (!res.ok) {
-                const errorData = await res.json();
-                const errorMessage = errorData.mensaje || 'Credenciales inválidas o error de servidor.';
-                setError(errorMessage);
+            if (!data) {
+                setError('Error de servidor');
                 setLoading(false);
                 return;
             }
 
-            const data = await res.json();
             const token = data.access_token;
 
             try {

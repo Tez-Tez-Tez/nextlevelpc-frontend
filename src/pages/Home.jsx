@@ -3,8 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Home.css';
 import '../styles/Productos.css';
 import { useCart } from '../utils/CartContext';
-
-const API_BASE = '';
+import { apiFetch } from '../utils/apiClient';
 
 const Home = () => {
    
@@ -95,13 +94,7 @@ const Home = () => {
         const fetchProductosDestacados = async () => {
             try {
                 setLoading(true);
-                const response = await fetch(`${API_BASE}/api/productos/destacados?limite=6`);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-
-                const data = await response.json();
+                const data = await apiFetch(`/api/productos/destacados?limite=6`);
 
                 if (data.success) {
                     setProductosDestacados(data.data);

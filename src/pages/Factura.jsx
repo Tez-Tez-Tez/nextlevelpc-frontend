@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../styles/Factura.css';
+import { apiFetch } from '../utils/apiClient';
 
 const Factura = () => {
     const { id } = useParams();
@@ -19,19 +20,7 @@ const Factura = () => {
                 setLoading(true);
                 console.log('Fetching orden con ID:', id);
 
-                const response = await fetch(`/api/ordenes/${id}`, {
-                    method: 'GET',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Error ${response.status}: No se pudo cargar la orden`);
-                }
-
-                const result = await response.json();
+                const data = await apiFetch(`/api/ordenes/${id}`);
                 console.log('Orden recibida:', result);
 
                 if (result.success && result.data) {

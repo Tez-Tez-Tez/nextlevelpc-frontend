@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../utils/CartContext';
+import { apiFetch } from '../utils/apiClient';
 import "../styles/Productos.css";
 
 // --- Constantes ---
-const API_BASE = '';
 const DEFAULT_IMAGE = 'https://placehold.co/600x400/EEE/31343C?text=Producto';
 const PRODUCT_DEFAULTS = {
   description: 'Producto disponible en NextLevelPC.',
@@ -602,13 +602,8 @@ const Productos = () => {
           return;
         }
 
-        const response = await fetch(endpoint);
-
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: No se pudieron cargar los productos`);
-        }
-
-        const { data, success } = await response.json();
+        try {
+          const { data, success } = await apiFetch(endpoint);
 
         if (!success) {
           if (data) {
