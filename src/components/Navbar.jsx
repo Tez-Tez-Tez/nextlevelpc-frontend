@@ -82,11 +82,6 @@ const Navbar = () => {
           ]);
         }
       } catch (error) {
-        const data = await response.json();
-        
-        const cats = Array.isArray(data) ? data : (data.data && Array.isArray(data.data) ? data.data : []);
-        setCategories(cats.filter(cat => cat.id && cat.nombre));
-      } catch (error) {
         console.error("Error fetching categories:", error);
         setCategories([
           { id: '1', nombre: 'Hardware' },
