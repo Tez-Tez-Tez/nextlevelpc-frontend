@@ -1,8 +1,8 @@
 /**
  * Configuración de la URL base de la API
- * Idealmente esto debería venir de variables de entorno (import.meta.env.VITE_API_URL)
+ * Viene de la variable de entorno VITE_API_BASE_URL
  */
-export const API_BASE_URL = 'http://localhost:8080';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 /**
  * Construye una URL completa para una imagen
