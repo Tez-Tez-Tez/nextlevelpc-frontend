@@ -549,7 +549,7 @@ const Productos = () => {
   const buildEndpoint = useCallback(() => {
     // El detalle del producto sigue igual
     if (productId) {
-      return `${API_BASE}/api/productos/${encodeURIComponent(productId)}`;
+      return `/api/productos/${encodeURIComponent(productId)}`;
     }
 
     // Lógica unificada para filtros
@@ -563,7 +563,7 @@ const Productos = () => {
       params.append('categoria_id', categoriaId);
     }
 
-    return `${API_BASE}/api/productos/con-imagenes?${params.toString()}`;
+    return `/api/productos/con-imagenes?${params.toString()}`;
 
   }, [productId, searchQuery, categoriaId]);
 
