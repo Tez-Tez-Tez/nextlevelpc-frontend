@@ -53,8 +53,8 @@ const RegisterModal = ({ onClose }) => {
                 }),
             });
 
-            if (!res.ok) {
-                setError(data.mensaje || data.message || `Error ${res.status}`);
+            if (data.error) {
+                setError(data.mensaje || data.message || data.error);
                 setLoading(false);
                 return;
             }
