@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
+import { apiFetch } from "./apiClient";
 
 const StripeContext = createContext();
 
@@ -23,9 +24,8 @@ export const StripeProvider = ({ children }) => {
                 throw new Error(`Monto insuficiente. El mínimo es $20,000 COP.`);
             }
 
-            const res = await fetch("/api/payments/create-payment-intent", {
+            const data = await apiFetch("/api/payments/create-payment-intent", {
                 method: "POST",
-                credentials: "include",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     amount: Math.round(total * 100), // COP → centavos
@@ -34,10 +34,8 @@ export const StripeProvider = ({ children }) => {
                 })
             });
 
-            const data = await res.json();
-
-            if (!res.ok) {
-                throw new Error(data.mensaje || "Error creando PaymentIntent");
+            if (!data) {
+                throw new Error("Error creando PaymentIntent");
             }
 
             return data;

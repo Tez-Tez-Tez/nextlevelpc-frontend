@@ -4,6 +4,7 @@ import '../styles/Navbar.css';
 import { useCart } from '../utils/CartContext';
 import { useAuth } from '../utils/AuthContext';
 import { useAuthModal } from '../contexts/AuthContext';
+import { apiFetch } from '../utils/apiClient';
 
 // Íconos SVG
 const IconCart = () => (
@@ -70,15 +71,17 @@ const Navbar = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('/api/categorias/producto');
-        if (!response.ok) {
+        const data = await apiFetch('/api/categorias/producto');
+        if (data && Array.isArray(data.data)) {
+          setCategories(data.data);
+        } else {
           setCategories([
             { id: '1', nombre: 'Hardware' },
             { id: '2', nombre: 'Periféricos' },
             { id: '3', nombre: 'Software' },
           ]);
-          return;
         }
+      } catch (error) {
         const data = await response.json();
         
         const cats = Array.isArray(data) ? data : (data.data && Array.isArray(data.data) ? data.data : []);

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAuthModal } from '../contexts/AuthContext';
+import { apiFetch } from '../utils/apiClient';
 import '../styles/login.css';
 
 const IconX = () => (
@@ -41,7 +42,7 @@ const RegisterModal = ({ onClose }) => {
 
         setLoading(true);
         try {
-            const res = await fetch('/api/usuarios/registro', {
+            const data = await apiFetch('/api/usuarios/registro', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -51,14 +52,6 @@ const RegisterModal = ({ onClose }) => {
                     hash_password: registerData.hash_password
                 }),
             });
-
-            const text = await res.text();
-            let data = {};
-            try {
-                data = text ? JSON.parse(text) : {};
-            } catch (err) {
-                console.warn('Respuesta no JSON:', text);
-            }
 
             if (!res.ok) {
                 setError(data.mensaje || data.message || `Error ${res.status}`);

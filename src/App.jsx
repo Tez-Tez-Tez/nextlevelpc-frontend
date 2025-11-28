@@ -1,6 +1,7 @@
 // App.jsx
 import { useEffect, Fragment } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { apiFetch } from './utils/apiClient';
 
 // Pages
 import Home from './pages/Home';
@@ -36,8 +37,7 @@ function App() {
     const location = useLocation();
 
     useEffect(() => {
-        fetch('/api/health')
-            .then(res => res.json())
+        apiFetch('/api/health')
             .then(data => {
                 console.log('Backend OK:', data.message);
             })
