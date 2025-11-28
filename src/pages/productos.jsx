@@ -602,8 +602,7 @@ const Productos = () => {
           return;
         }
 
-        try {
-          const { data, success } = await apiFetch(endpoint);
+        const { data, success } = await apiFetch(endpoint);
 
         if (!success) {
           if (data) {
