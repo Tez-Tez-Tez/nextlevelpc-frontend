@@ -21,12 +21,12 @@ const Factura = () => {
                 console.log('Fetching orden con ID:', id);
 
                 const data = await apiFetch(`/api/ordenes/${id}`);
-                console.log('Orden recibida:', result);
+                console.log('Orden recibida:', data);
 
-                if (result.success && result.data) {
-                    setOrden(result.data);
+                if (data.success && data.data) {
+                    setOrden(data.data);
                     // Si el estado de pago sigue pendiente, seguir refrescando
-                    if (result.data.estado_pago === 'pendiente' && intentos < MAX_INTENTOS) {
+                    if (data.data.estado_pago === 'pendiente' && intentos < MAX_INTENTOS) {
                         intentos++;
                     } else {
                         clearInterval(intervalId);
