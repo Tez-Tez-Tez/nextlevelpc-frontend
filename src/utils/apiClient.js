@@ -25,8 +25,8 @@ export const apiFetch = async (endpoint, options = {}) => {
             credentials: 'include', // Para enviar cookies si es necesario
             headers: {
                 ...options.headers,
-                // Fallback: enviar token en header si existe en cookies (para Safari/iOS/Cross-site)
-                'Authorization': `Bearer ${getCookie('accessToken')}`
+                // Fallback: enviar token en header si existe en cookies o localStorage
+                'Authorization': `Bearer ${getCookie('accessToken') || localStorage.getItem('accessToken')}`
             }
         });
 

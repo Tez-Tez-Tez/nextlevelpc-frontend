@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import Cookies from 'js-cookie';
-import { apiFetch } from './apiClient'; 
+import { apiFetch } from './apiClient';
 
 const AuthContext = createContext(null);
 
@@ -12,14 +12,14 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [user, setUser] = useState(null);
-    
-    // Función para obtener el accessToken de la Cookie
-    const getAccessTokenFromCookie = () => {
-        return Cookies.get('accessToken'); 
+
+    // Función para obtener el accessToken (Cookie o LocalStorage)
+    const getAccessToken = () => {
+        return Cookies.get('accessToken') || localStorage.getItem('accessToken');
     };
 
     useEffect(() => {
-        const token = getAccessTokenFromCookie();
+        const token = getAccessToken();
 
         if (!token) {
             setIsAuthenticated(false);
@@ -32,7 +32,8 @@ export const AuthProvider = ({ children }) => {
             decoded = jwtDecode(token);
         } catch (error) {
             console.error("Error decodificando el token:", error);
-            Cookies.remove('accessToken', { path: '/' }); 
+            Cookies.remove('accessToken', { path: '/' });
+            localStorage.removeItem('accessToken');
             setIsAuthenticated(false);
             setUser(null);
             return;
@@ -40,27 +41,33 @@ export const AuthProvider = ({ children }) => {
 
         if (decoded.exp * 1000 <= Date.now()) {
             Cookies.remove('accessToken', { path: '/' });
+            localStorage.removeItem('accessToken');
             setIsAuthenticated(false);
             setUser(null);
             return;
         }
-        
-        setUser(decoded); 
+
+        setUser(decoded);
         setIsAuthenticated(true);
-        
+
     }, []);
 
     const login = (accessToken) => {
         try {
-            const decodedUser = jwtDecode(accessToken); 
+            const decodedUser = jwtDecode(accessToken);
 
             setUser(decodedUser);
             setIsAuthenticated(true);
-            return decodedUser; 
-            
+
+            // Guardar en localStorage como fallback
+            localStorage.setItem('accessToken', accessToken);
+
+            return decodedUser;
+
         } catch (error) {
             console.error("Error al procesar el login:", error);
             Cookies.remove('accessToken', { path: '/' });
+            localStorage.removeItem('accessToken');
             setIsAuthenticated(false);
             setUser(null);
             throw new Error('Token de acceso inválido recibido.');
@@ -69,9 +76,10 @@ export const AuthProvider = ({ children }) => {
 
     const logout = (shouldRedirect = true) => {
         Cookies.remove('accessToken', { path: '/' });
-        
+        localStorage.removeItem('accessToken');
+
         apiFetch('/api/usuarios/logout', {
-            method: 'POST', 
+            method: 'POST',
         }).catch(err => console.error('Error al llamar a logout:', err));
 
         setIsAuthenticated(false);
