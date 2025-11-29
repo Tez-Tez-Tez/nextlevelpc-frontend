@@ -15,22 +15,27 @@ console.log('API_BASE_URL configurada:', API_BASE_URL);
  */
 export const apiFetch = async (endpoint, options = {}) => {
     const url = `${API_BASE_URL}${endpoint}`;
-    
+
     // Log para debugging
     console.log(`API Request: ${options.method || 'GET'} ${url}`);
-    
+
     try {
         const response = await fetch(url, {
             ...options,
             credentials: 'include', // Para enviar cookies si es necesario
+            headers: {
+                ...options.headers,
+                // Fallback: enviar token en header si existe en cookies (para Safari/iOS/Cross-site)
+                'Authorization': `Bearer ${getCookie('accessToken')}`
+            }
         });
-        
+
         // Si la respuesta no es ok, lanzar error
         if (!response.ok) {
             console.error(`API Error: ${response.status} ${response.statusText}`);
             throw new Error(`HTTP ${response.status}`);
         }
-        
+
         // Intentar parsear como JSON
         const data = await response.json();
         console.log(`API Response:`, data);
@@ -40,5 +45,17 @@ export const apiFetch = async (endpoint, options = {}) => {
         throw error;
     }
 };
+
+
+
+/**
+ * Helper para leer cookies en el cliente
+ */
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return '';
+}
 
 export { API_BASE_URL };
