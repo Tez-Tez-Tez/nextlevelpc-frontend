@@ -1,4 +1,7 @@
 import { loadStripe } from "@stripe/stripe-js";
 
-export const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
-);
+const key = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+if (!key) {
+    console.error("Falta VITE_STRIPE_PUBLISHABLE_KEY");
+}
+export const stripePromise = loadStripe(key);

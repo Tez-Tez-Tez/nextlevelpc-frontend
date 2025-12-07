@@ -6,8 +6,10 @@ const StripeContext = createContext();
 
 export const useStripeContext = () => useContext(StripeContext);
 
-// ÚNICA instancia permitida por Stripe
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+import { stripePromise } from "./stripePromise";
+
+export const useStripeContext = () => useContext(StripeContext);
+
 
 export const StripeProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
