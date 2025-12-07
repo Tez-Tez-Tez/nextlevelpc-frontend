@@ -4,8 +4,6 @@ import { apiFetch } from "./apiClient";
 
 const StripeContext = createContext();
 
-export const useStripeContext = () => useContext(StripeContext);
-
 import { stripePromise } from "./stripePromise";
 
 export const useStripeContext = () => useContext(StripeContext);
