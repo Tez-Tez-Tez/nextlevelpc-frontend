@@ -286,6 +286,7 @@ const Navbar = () => {
           {/* Contenedor del Perfil de Usuario */}
           <div className="navbar-profile-container">
             <button
+              id='user-btn'
               className="navbar-icon-btn"
               aria-label="Perfil de usuario"
               onClick={handleUserClick}
@@ -297,6 +298,7 @@ const Navbar = () => {
           {/* Carrito */}
           <div className="navbar-cart-container">
             <button
+              id='cart-btn'
               className="navbar-icon-btn cart-btn"
               aria-label="Carrito"
               onClick={() => setCartOpen(o => !o)}
