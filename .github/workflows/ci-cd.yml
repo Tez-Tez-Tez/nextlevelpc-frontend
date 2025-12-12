@@ -28,15 +28,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Instalar dependencias
-        run: |
-          npm install
-          npm install mocha selenium-webdriver --save-dev
-
-      - name: Dar permisos a mocha
-        run: chmod +x node_modules/.bin/mocha
+        run: npm install
 
       - name: Ejecutar pruebas
-        run: npx mocha tests/e2e --recursive --timeout 30000
+        run: npm run test:e2e
 
   build_docker:
     needs: test
@@ -66,23 +61,3 @@ jobs:
         run: |
             IMAGE_NAME=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
             docker push ghcr.io/${IMAGE_NAME}/nextlevelpc-frontend:latest
-
-  deploy:
-    needs: build_docker
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Setup Railway CLI
-        run: |
-          curl -fsSL https://railway.app/install.sh | sh
-          echo "$HOME/.railway/bin" >> $GITHUB_PATH
-
-      - name: Deploy to Railway
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: |
-          railway login --token $RAILWAY_TOKEN
-          railway up --service nextlevelpc-frontend

@@ -1,25 +1,24 @@
 FROM node:18-alpine
 
-# Instala serve (servidor web estático ligero)
+# Instala serve (sin modificar package.json)
 RUN npm install -g serve
 
-# Establece directorio de trabajo
 WORKDIR /app
 
-# Copia package files para build
+# Copia package files
 COPY package*.json ./
 
-# Instala todas las dependencias (incluyendo dev para build)
+# Instala dependencias (incluye las que YA tienes)
 RUN npm ci
 
-# Copia todo el código
+# Copia código
 COPY . .
 
-# Build de producción
+# Build con tu script EXISTENTE
 RUN npm run build
 
-# Expone el puerto
+# Expone puerto
 EXPOSE 5173
 
-# Sirve los archivos estáticos del build
+# Sirve con serve (no necesita index.js)
 CMD ["serve", "-s", "dist", "-l", "5173"]
