@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  test:
+  ci:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,5 +22,11 @@ jobs:
     - name: Instalar dependencias
       run: npm install
 
-    - name: Ejecutar pruebas
-      run: npm test
+    - name: Lint (verificar estilo de código)
+      run: npm run lint
+
+    - name: Build (asegurar que compile)
+      run: npm run build
+
+    - name: Ejecutar pruebas E2E
+      run: npm run test:e2e
