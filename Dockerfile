@@ -1,24 +1,17 @@
-FROM node:18-alpine
-
-# Instala serve (sin modificar package.json)
-RUN npm install -g serve
-
+# ---- Build ----
+FROM node:18 AS build
 WORKDIR /app
 
-# Copia package files
 COPY package*.json ./
+RUN npm install
 
-# Instala dependencias (incluye las que YA tienes)
-RUN npm ci
-
-# Copia código
 COPY . .
-
-# Build con tu script EXISTENTE
 RUN npm run build
 
-# Expone puerto
-EXPOSE 5173
+# ---- Production ----
+FROM nginx:alpine
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY dist /usr/share/nginx/html
 
-# Sirve con serve (no necesita index.js)
-CMD ["serve", "-s", "dist", "-l", "5173"]
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
