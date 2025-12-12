@@ -1,4 +1,4 @@
-name: CI-CD
+name: CI-CD Frontend
 
 on:
   push:
@@ -7,62 +7,61 @@ on:
     branches: ["main"]
 
 jobs:
-  test:
+  build_and_deploy:
     runs-on: ubuntu-latest
-    
+
+    permissions:
+      contents: read
+      packages: write
+
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+      
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18
+      
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
-    - name: Install dependencies
-      run: npm ci
+      
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Build frontend
-      run: npm run build
-
-    - name: Setup Chrome for E2E
-      uses: browser-actions/setup-chrome@v1
-
-    - name: Run E2E tests
-      run: |
-        # Iniciar servidor de preview (producción)
-        npm run preview &
-        SERVER_PID=$!
-        
-        # Esperar que esté listo
-        sleep 10
-        
-        # Ejecutar tests (no bloqueante)
-        npm run test:e2e || echo "⚠️ Tests fallaron, continuando..."
-        
-        # Cerrar servidor
-        kill $SERVER_PID 2>/dev/null || true
-
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'  # SOLO en main
     
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+      - name: Run unit tests
+        run: npm run test --if-present
 
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+    
+      - name: Build app before e2e
+        run: npm run build --if-present
 
-    - name: Build and push Docker image
-      run: |
-        # Nombre en minúsculas (requerido)
-        REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-        
-        docker build -t ghcr.io/${REPO_LOWER}:latest .
-        docker push ghcr.io/${REPO_LOWER}:latest
+      - name: Start app for e2e
+        run: |
+          npx serve -s dist -l 5173 &
+          sleep 5
+
+      - name: Run e2e tests
+        run: npm run e2e --if-present
+
+      - name: Build project
+        run: npm run build
+
+      
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Docker image
+        run: |
+          IMAGE_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          docker build -t ghcr.io/${IMAGE_NAME}:latest .
+
+      - name: Push Docker image
+        run: |
+          IMAGE_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          docker push ghcr.io/${IMAGE_NAME}:latest
