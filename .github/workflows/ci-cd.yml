@@ -28,10 +28,20 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Instalar dependencias
-        run: npm install
+        run: |
+          npm install
+          npm install mocha selenium-webdriver --save-dev
+
+      - name: Dar permisos a mocha
+        run: chmod +x node_modules/.bin/mocha
+
+      - name: Instalar Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
 
       - name: Ejecutar pruebas
-        run: npm run test:e2e
+        run: npx mocha tests/e2e --recursive --timeout 30000
 
   build_docker:
     needs: test
