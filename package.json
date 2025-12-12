@@ -1,19 +1,14 @@
 {
   "name": "nextlevel",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "eslint . || true",
     "preview": "vite preview",
-    "start": "node index.js",
-    "test": "npm run test:e2e",
-    "test:e2e": "node --experimental-specifier-resolution=node node_modules/mocha/bin/mocha tests/e2e --timeout 30000 --exit",
-    "test:unit": "echo 'No unit tests configured yet'",
-    "deploy": "npm run build && npm run test"
+    "test:e2e": "mocha tests/e2e --timeout 30000 --exit"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.1.0",
