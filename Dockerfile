@@ -1,16 +1,15 @@
-# Build stage
-FROM node:18 AS builder
+FROM node:18-alpine
+
+# Instala un servidor web ligero
+RUN npm install -g serve
+
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
+# Copia los archivos buildados
+COPY dist ./dist
 
-COPY . .
-RUN npm run build
+# Exponer puerto
+EXPOSE 5173
 
-# Production stage
-FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
-
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# Servir archivos estáticos
+CMD ["serve", "-s", "dist", "-l", "5173"]
