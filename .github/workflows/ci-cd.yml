@@ -45,6 +45,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
+      - name: Instalar dependencias y build
+        run: |
+          npm install
+          npm run build
+      
       - name: Creacion de contendor docker
         uses: docker/login-action@v3
         with:
