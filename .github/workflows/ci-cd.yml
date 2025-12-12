@@ -1,70 +1,83 @@
-name: CI-CD
+name: Node.js CI
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
   pull_request:
-    branches: ["main"]
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+  actions: write
+  packages: write
 
 jobs:
-  ci-cd:
+  test:
     runs-on: ubuntu-latest
 
-    permissions:
-      packages: write
-      contents: read
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    # ---------------------- Node ---------------------- #
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
 
-    - name: Install dependencies
-      run: npm install
+      - name: Instalar dependencias
+        run: |
+          npm install
+          npm install mocha selenium-webdriver --save-dev
 
-    - name: Lint (no bloquea)
-      run: npm run lint || true
+      - name: Dar permisos a mocha
+        run: chmod +x node_modules/.bin/mocha
 
-    - name: Build frontend
-      run: npm run build
+      - name: Ejecutar pruebas
+        run: npx mocha tests/e2e --recursive --timeout 30000
 
-    # ---------------------- Start server for E2E ---------------------- #
-    - name: Start Vite server
-      run: |
-        nohup npm run dev > dev.log 2>&1 &
-        sleep 10
+  build_docker:
+    needs: test
+    runs-on: ubuntu-latest
+      
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Creacion de contendor docker
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Construir imagen Docker
+        run: |
+            IMAGE_NAME=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+            docker build -t ghcr.io/${IMAGE_NAME}/nextlevelpc-frontend:latest .
+      
+      - name: Publicar imagen en GHCR
+        run: |
+            IMAGE_NAME=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+            docker push ghcr.io/${IMAGE_NAME}/nextlevelpc-frontend:latest
 
-    # ---------------------- Install Chrome + ChromeDriver ---------------------- #
-    - name: Install Chrome
-      uses: browser-actions/setup-chrome@v1
+  deploy:
+    needs: build_docker
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Railway CLI
+        run: |
+          curl -fsSL https://railway.app/install.sh | sh
+          echo "$HOME/.railway/bin" >> $GITHUB_PATH
 
-    - name: Install ChromeDriver
-      uses: nanasess/setup-chromedriver@v2
-
-    - name: Export ChromeDriver path
-      run: echo "CHROMEDRIVER=$(which chromedriver)" >> $GITHUB_ENV
-
-    # ---------------------- Run E2E ---------------------- #
-    - name: Run E2E tests
-      env:
-        CHROME_BIN: /usr/bin/google-chrome
-      run: npm run test:e2e
-
-    # ---------------------- CD - Build Docker Image ---------------------- #
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Build Docker image
-      run: docker build -t ghcr.io/${{ github.repository }}/frontend:latest .
-
-    - name: Push Docker image
-      run: docker push ghcr.io/${{ github.repository }}/frontend:latest
+      - name: Deploy to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway login --token $RAILWAY_TOKEN
+          railway up --service nextlevelpc-frontend
