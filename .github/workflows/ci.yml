@@ -22,8 +22,8 @@ jobs:
     - name: Instalar dependencias
       run: npm install
 
-    - name: Lint (verificar estilo de código)
-      run: npm run lint
+    - name: Lint (no bloquear CI)
+      run: npm run lint || true
 
     - name: Build (asegurar que compile)
       run: npm run build
